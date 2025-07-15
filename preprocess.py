@@ -63,7 +63,7 @@ def gen_program_desc(model_version, feature, num_of_program: int):
     with input_filepath.open('r') as f:
       feature_content = f.read()
 
-    return_format = "返回 json 格式的列表，列表的每个元素是一个字符串吗，例如：\n" \
+    return_format = "返回 json 格式的列表，列表的每个元素是一个字符串，例如：\n" \
         "``` json\n" \
         "[\n" \
         "  \"泛型函数实现两个数的交换，适用于int, float等类型\",\n" \
@@ -75,7 +75,7 @@ def gen_program_desc(model_version, feature, num_of_program: int):
 
     system_prompt = "You are a helpful assistant that generates a program description based on the provided feature documentation."
     user_prompt = f'''
-    我要求你描述 {num_of_program} 个非常简单（as simple as possible）的 C 语言程序，涉及到如下概念，能体现出如下特性：
+    我要求你描述 {num_of_program} 个非常简单（as simple as possible）C 语言程序，不同程序的逻辑和功能尽肯能不同，涉及到如下概念，能体现出如下特性：
     {feature_content} 
 
     返回格式参考：
@@ -83,6 +83,7 @@ def gen_program_desc(model_version, feature, num_of_program: int):
 
     注意：
     - 定义“编译时计算”的类型： bool,char(signed char, unsigned char), 整数类型（包括 int 以及被 short/signed/unsigned/long/long long 等修饰的 int 类型，不包括 enum 类型），以及这些类型的别名。
+    - 返回时的程序描述尽量做到详尽。
     '''
     response = ask_llm(system_prompt=system_prompt,
                        user_prompt=user_prompt, model_version=model_version)

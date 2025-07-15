@@ -240,7 +240,7 @@ def build_prompt_generic(
 
   # User prompt
   user_prompt = f"""
-  You need to write two simple (as simple as possible) programs that demonstrate how below features described above make Bisheng-C different from standard C.
+  First, you need to write some simple C language programs, then use the new features of Bisheng C you have learned to translate the C programs into Bisheng C code, ensuring that the differences between the two are highlighted and that their outputs are completely identical.
 
   Requirements:
   - {program_description}
@@ -262,6 +262,20 @@ def build_prompt_generic(
   - Bi-Sheng-C has added some header files with the .hbs extension, but do not rename the original C header files to .hbs.
   - There is no bool type in C, so you can use int instead. In Bisheng-C, you can use _Bool type.
   - 'async' can not be used to decorate 'main' function in Bisheng-C.
+
+  - No need to write 'printf' in the destructor, make sure the outputs of both the standard C program and the Bi-Sheng-C program are identical.
+  - In Bisheng-C, member functions of an owned struct require an explicit this parameter in their definition (e.g., Type *this), but when calling these functions, the this parameter is implicitly passed, allowing calls like object.function() instead of object.function(&object).
+  - Use the keyword "owned struct" to define custom types instead of "struct". Ensure the type name follows the "owned struct" declaration.
+  - Member functions must explicitly declare the `this` parameter with compatible pointer types, such as `C*`, `const C*`, or `C* owned`.
+  - Define destructors with the `~` prefix and only allow a single destructor per `owned struct`. The destructor must accept one parameter that is the same type as the `owned struct`.
+  - Owned pointers in members must be manually released in the destructor using functions like `safe_free()`. Ensure you include "bishengc_safety.hbs" to use `safe_malloc` and `safe_free`.
+  - Member variables default to `private` visibility in an `owned struct`. You must explicitly specify `public` to allow external access.
+  - When creating instances of an `owned struct`, use struct initializer syntax and ensure all members are fully initialized. If members are owned pointers, they must be allocated properly.
+  - Do not define generic functions inside an `owned struct`. Always keep function definitions outside of the `owned struct` if generics are needed.
+  - Ensure that `owned struct` instances are either in `owned` or `moved` state when they go out of scope; otherwise, handle the potential error of "partially moved owned struct".
+  - The destructor is called automatically at the end of the object’s lifecycle. If you have owned pointers, ensure they are freed in the destructor to avoid memory leaks.
+  - Destructors for `owned struct` types must not be called manually, and their invocation order is vital: outer destructors are called before inner member destructors.
+  - Avoid using static variables within the destructor, as global or static destructors will not execute as expected.
 
   {one_shot_example}
 
